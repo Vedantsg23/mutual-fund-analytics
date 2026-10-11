@@ -1,49 +1,88 @@
-# Mutual Fund Analytics — Day 1 Data Ingestion
+# Mutual Fund Analytics
 
-## Project layout
+A Python-based data ingestion project for exploring mutual fund datasets and retrieving live Net Asset Value (NAV) history using the MFAPI API.
+
+## Project Objectives
+
+* Load and inspect mutual fund datasets using Pandas.
+* Examine fund houses, categories, subcategories, and risk classifications.
+* Validate scheme codes between the fund master and NAV history datasets.
+* Fetch and validate live NAV history for six large-cap mutual fund schemes.
+* Generate data-quality reports.
+
+## Tech Stack
+
+* Python
+* Pandas
+* NumPy
+* Requests
+* Matplotlib
+* Seaborn
+* Plotly
+* SQLAlchemy
+* SciPy
+* Jupyter Notebook
+
+## Project Structure
 
 ```text
-.
+mf_ingestion/
 ├── data/
-│   ├── raw/          # 10 source CSVs and fetched MFAPI NAV snapshots
-│   └── processed/   # reserved for validated/cleaned datasets
+│   ├── raw/
+│   └── processed/
 ├── notebooks/
 ├── sql/
 ├── dashboard/
-├── reports/          # generated data-quality reports
+├── reports/
 ├── data_ingestion.py
 ├── live_nav_fetch.py
-└── requirements.txt
+├── find_scheme_codes.py
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
-## Setup and run
+## Data Ingestion
+
+Run the main dataset inspection script:
+
+```bash
+python data_ingestion.py
+```
+
+The script loads the supplied CSV datasets, inspects their structures, and generates data-quality reports.
+
+## Live NAV Ingestion
+
+Run:
+
+```bash
+python live_nav_fetch.py
+```
+
+The script retrieves NAV history for six mutual fund schemes, validates the returned scheme codes and names, and saves valid records as CSV files.
+
+Invalid NAV records are preserved separately for auditing.
+
+## Installation
+
+Create and activate a virtual environment, then install dependencies:
 
 ```bash
 python -m venv .venv
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-python -m pip install --upgrade pip
+```
+
+On Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python data_ingestion.py
-python live_nav_fetch.py
-python data_ingestion.py  # rerun if you want to profile the newly fetched files separately
 ```
 
-The ingestion script reads each source CSV in `data/raw/`, prints shape, dtypes, head and basic anomaly checks, profiles fund-master dimensions, validates fund-master AMFI codes against `nav_history`, and writes Markdown/JSON reports under `reports/`.
+## Data Quality
 
-The live fetcher requests the six scheme codes supplied for this task from `https://api.mfapi.in/mf/<scheme-code>` and saves NAV history as CSV files in `data/raw/`. Network access and the API must be available at runtime.
+The project includes checks for missing values, invalid NAV values, scheme-name mismatches, and consistency between fund master and NAV history codes.
 
-## AMFI scheme code notes
+## Disclaimer
 
-AMFI scheme codes are scheme identifiers. Treat them as identifiers rather than numeric measurements; do not infer fund house or category from the digits. Scheme variants (such as direct vs regular and growth vs IDCW) may have different codes. The `fund_master` dataset is the source of descriptive metadata; NAV history should be joined using the code field after normalizing both sides consistently.
-
-## Git
-
-The initial local commit is named `Day 1: Data ingestion complete`. To publish it, create an empty GitHub repository, then run:
-
-```bash
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY>.git
-git push -u origin main
-```
-
-Do not put GitHub tokens/passwords in source files or commit history.
+This project is for educational and analytical purposes only. It does not provide investment advice.
